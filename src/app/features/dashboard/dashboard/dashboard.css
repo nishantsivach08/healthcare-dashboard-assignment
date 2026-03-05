@@ -1,0 +1,52 @@
+@reference "../../../../styles.css";
+
+.request-timeline {
+  @apply gap-4 md:gap-6;
+}
+
+.request-timeline__item {
+  @apply flex-1 flex flex-col items-center relative;
+}
+
+.request-timeline__connector {
+  @apply absolute top-4 left-1/2 w-full h-px bg-secondary/20;
+}
+
+.request-timeline__dot {
+  @apply w-8 h-8 rounded-full flex items-center justify-center shadow-sm border-2 border-white z-10;
+}
+
+.request-timeline__dot--past {
+  @apply bg-secondary/70;
+}
+
+.request-timeline__dot--current {
+  @apply bg-primary;
+}
+
+.request-timeline__panel {
+  @apply mt-3 text-center px-3 max-w-32;
+}
+
+.request-timeline__status {
+  @apply inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[11px] font-semibold text-primary bg-white/80 border border-primary/10;
+}
+
+.request-timeline__meta {
+  @apply text-[10px] text-gray-400;
+}
+
+.request-timeline__note {
+  @apply text-[10px] text-gray-500 leading-tight mt-0.5;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .request-timeline__item {
+    transition: transform 150ms ease-out;
+  }
+
+  .request-timeline__item:hover .request-timeline__panel {
+    @apply bg-white shadow-md border-primary/20;
+  }
+}
+

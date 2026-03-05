@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+@import 'tailwindcss';
+@import '@angular/material/prebuilt-themes/azure-blue.css';
+
+@theme {
+  --color-primary: #22404B;
+  --color-secondary: #547E72;
+  --color-accent: #9EC981;
+  --color-surface: #91B7C0;
+  --color-background: #F5F5F0;
+  --color-success: #547E72;
+  --color-warning: #9EC981;
+  --color-danger: #B74C4C;
+
+  --font-heading: "DM Serif Display", serif;
+  --font-body: "DM Sans", sans-serif;
+}
+
+
+body {
+  @apply font-body bg-background text-primary;
+  min-height: 100vh;
+}
+
+
+.mat-mdc-form-field .mat-mdc-floating-label {
+  color: #547E72 !important;
+}
+
+.mat-mdc-form-field .mdc-notched-outline__leading,
+.mat-mdc-form-field .mdc-notched-outline__notch,
+.mat-mdc-form-field .mdc-notched-outline__trailing {
+  border-color: #91B7C0 !important;
+}
+
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__leading,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__notch,
+.mat-mdc-form-field.mat-focused .mdc-notched-outline__trailing {
+  border-color: #22404B !important;
+  border-width: 2px !important;
+}
+
+.mat-mdc-form-field.mat-focused .mat-mdc-floating-label {
+  color: #22404B !important;
+}
+
+.mat-mdc-option:hover {
+  background-color: #F0F7F4 !important;
+}
+
+.mat-mdc-option.mdc-list-item--selected {
+  background-color: #E8F5EE !important;
+  color: #22404B !important;
+}
+
+.mat-mdc-slide-toggle.mat-warn .mdc-switch:enabled .mdc-switch__track::after {
+  background: #B74C4C !important;
+}
+
+.mat-mdc-card {
+  border-radius: 16px !important;
+  box-shadow: 0 1px 3px rgba(34,64,75,0.08), 0 4px 16px rgba(34,64,75,0.06) !important;
+}
+
+.mat-mdc-header-row {
+  background-color: #EEF4F6 !important;
+}
+
+.mat-mdc-header-cell {
+  color: #22404B !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+
+.mat-mdc-row:hover {
+  background-color: #F6FAFB !important;
+  transition: background-color 0.15s ease;
+}
+
+.mat-mdc-cell {
+  color: #2d4f5a;
+  font-size: 0.875rem !important;
+  border-color:#d7d7d7 !important
+}
+
+.mat-mdc-outlined-button.mat-warn {
+  border-color: #B74C4C !important;
+  color: #B74C4C !important;
+}
+
+.mat-mdc-row {
+  border-bottom: none !important;
+}
+.mat-mdc-table{
+  border: none !important;
+}

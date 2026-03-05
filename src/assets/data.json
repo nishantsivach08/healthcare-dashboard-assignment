@@ -1,0 +1,327 @@
+{
+  "summary": {
+    "pending": 8,
+    "approved_this_month": 12,
+    "denied": 3,
+    "appeals_in_progress": 2,
+    "urgent": 4
+  },
+  "requests": [
+    {
+      "id": "auth_001",
+      "patient": {
+        "id": "pt_1001",
+        "name": "Maria Garcia",
+        "member_id": "ANT882991045"
+      },
+      "health_plan": "Anthem Blue Cross",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 7,
+      "visits_remaining": 2,
+      "submitted_date": "2026-01-10",
+      "days_pending": 5,
+      "status": "pending",
+      "appeal_deadline": null,
+      "doula": "Sarah Johnson",
+      "submission_method": "Portal (Availity)",
+      "confirmation_number": "AVL-2026-78432",
+      "clinical_justification": "High-risk pregnancy with gestational diabetes and moderate anxiety (PHQ-9: 12). Patient requires continued weekly support for blood sugar management education and mental health monitoring.",
+      "timeline": [
+        {"date": "2026-01-08", "status": "draft", "note": "Request created by system"},
+        {"date": "2026-01-10", "status": "submitted", "note": "Submitted via Availity portal"},
+        {"date": "2026-01-11", "status": "pending", "note": "Acknowledged by Anthem"}
+      ]
+    },
+    {
+      "id": "auth_002",
+      "patient": {
+        "id": "pt_1002",
+        "name": "Jennifer Martinez",
+        "member_id": "MOL773625189"
+      },
+      "health_plan": "Molina Healthcare",
+      "request_type": "Additional Postpartum",
+      "visits_requested": 9,
+      "visits_used": 9,
+      "visits_remaining": 0,
+      "submitted_date": "2026-01-03",
+      "days_pending": 12,
+      "status": "pending",
+      "appeal_deadline": null,
+      "doula": "Carmen Rodriguez",
+      "submission_method": "Fax",
+      "confirmation_number": "FX-20260103-1142",
+      "clinical_justification": "Postpartum depression diagnosis (PHQ-9: 18). Patient delivered via emergency C-section and is struggling with recovery and breastfeeding. Extended doula support critical for maternal mental health.",
+      "timeline": [
+        {"date": "2026-01-02", "status": "draft", "note": "Request created"},
+        {"date": "2026-01-03", "status": "submitted", "note": "Faxed to Molina"}
+      ]
+    },
+    {
+      "id": "auth_003",
+      "patient": {
+        "id": "pt_1003",
+        "name": "Ashley Thompson",
+        "member_id": "BSC445892037"
+      },
+      "health_plan": "Blue Shield of California",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 8,
+      "visits_remaining": 1,
+      "submitted_date": "2026-01-12",
+      "days_pending": 3,
+      "status": "submitted",
+      "appeal_deadline": null,
+      "doula": "Lisa Chen",
+      "submission_method": "Fax",
+      "confirmation_number": null,
+      "clinical_justification": "VBAC candidate with history of anxiety. Patient enrolled late in pregnancy (28 weeks) and requires additional visits to complete birth preparation and develop coping strategies.",
+      "timeline": [
+        {"date": "2026-01-12", "status": "submitted", "note": "Faxed to Blue Shield"}
+      ]
+    },
+    {
+      "id": "auth_004",
+      "patient": {
+        "id": "pt_1004",
+        "name": "Priya Patel",
+        "member_id": "LAC998734521"
+      },
+      "health_plan": "LA Care",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 6,
+      "visits_remaining": 3,
+      "submitted_date": "2026-01-05",
+      "days_pending": 0,
+      "status": "denied",
+      "denial_reason": "Insufficient documentation of medical necessity. Clinical justification does not meet criteria for extended services.",
+      "appeal_deadline": "2026-02-04",
+      "doula": "Aisha Williams",
+      "submission_method": "Portal",
+      "confirmation_number": "LAC-2026-11205",
+      "clinical_justification": "Patient with limited English proficiency and no family support. First pregnancy with elevated anxiety.",
+      "timeline": [
+        {"date": "2026-01-05", "status": "submitted", "note": "Submitted via LA Care portal"},
+        {"date": "2026-01-06", "status": "pending", "note": "Under review"},
+        {"date": "2026-01-12", "status": "denied", "note": "Denied - insufficient documentation"}
+      ]
+    },
+    {
+      "id": "auth_005",
+      "patient": {
+        "id": "pt_1005",
+        "name": "Sarah Kim",
+        "member_id": "HNT556123890"
+      },
+      "health_plan": "Health Net",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 9,
+      "visits_remaining": 0,
+      "submitted_date": "2026-01-08",
+      "days_pending": 0,
+      "status": "approved",
+      "approved_visits": 6,
+      "appeal_deadline": null,
+      "doula": "Sarah Johnson",
+      "submission_method": "Fax",
+      "confirmation_number": "HN-AUTH-88721",
+      "clinical_justification": "Twin pregnancy (high-risk) with gestational hypertension. Weekly monitoring and support required through delivery.",
+      "timeline": [
+        {"date": "2026-01-08", "status": "submitted", "note": "Faxed to Health Net"},
+        {"date": "2026-01-13", "status": "approved", "note": "Approved for 6 additional visits"}
+      ]
+    },
+    {
+      "id": "auth_006",
+      "patient": {
+        "id": "pt_1006",
+        "name": "Carmen Ruiz",
+        "member_id": "ANT887123456"
+      },
+      "health_plan": "Anthem Blue Cross",
+      "request_type": "Additional Postpartum",
+      "visits_requested": 9,
+      "visits_used": 5,
+      "visits_remaining": 4,
+      "submitted_date": "2025-12-28",
+      "days_pending": 18,
+      "status": "pending",
+      "appeal_deadline": null,
+      "doula": "Carmen Rodriguez",
+      "submission_method": "Portal (Availity)",
+      "confirmation_number": "AVL-2025-99281",
+      "clinical_justification": "Severe postpartum anxiety with intrusive thoughts. Patient is engaged with mental health services but requires continued doula support for daily coping and infant care confidence.",
+      "timeline": [
+        {"date": "2025-12-28", "status": "submitted", "note": "Submitted via Availity"},
+        {"date": "2025-12-30", "status": "pending", "note": "Under review"}
+      ]
+    },
+    {
+      "id": "auth_007",
+      "patient": {
+        "id": "pt_1007",
+        "name": "Nicole Davis",
+        "member_id": "KSR112987654"
+      },
+      "health_plan": "Kaiser Permanente",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 4,
+      "visits_used": 7,
+      "visits_remaining": 2,
+      "submitted_date": "2026-01-06",
+      "days_pending": 0,
+      "status": "appeal_submitted",
+      "denial_reason": "Member has not exhausted standard benefit allocation.",
+      "appeal_deadline": "2026-02-10",
+      "doula": "Lisa Chen",
+      "submission_method": "Provider Portal",
+      "confirmation_number": "KP-2026-AUTH-4421",
+      "clinical_justification": "History of preterm birth (34 weeks in prior pregnancy). Current pregnancy showing signs of cervical shortening. Proactive request for extended support.",
+      "timeline": [
+        {"date": "2026-01-06", "status": "submitted", "note": "Submitted via Kaiser portal"},
+        {"date": "2026-01-09", "status": "denied", "note": "Denied - benefit not exhausted"},
+        {"date": "2026-01-11", "status": "appeal_submitted", "note": "Appeal submitted with OB letter"}
+      ]
+    },
+    {
+      "id": "auth_008",
+      "patient": {
+        "id": "pt_1008",
+        "name": "Amy Williams",
+        "member_id": "HNT559876123"
+      },
+      "health_plan": "Health Net",
+      "request_type": "Additional Postpartum",
+      "visits_requested": 6,
+      "visits_used": 9,
+      "visits_remaining": 0,
+      "submitted_date": "2026-01-09",
+      "days_pending": 0,
+      "status": "approved",
+      "approved_visits": 6,
+      "appeal_deadline": null,
+      "doula": "Aisha Williams",
+      "submission_method": "Fax",
+      "confirmation_number": "HN-AUTH-88845",
+      "clinical_justification": "Complicated delivery with 4th degree tear. Extended recovery requiring additional postpartum support for mobility, infant care, and breastfeeding assistance.",
+      "timeline": [
+        {"date": "2026-01-09", "status": "submitted", "note": "Faxed to Health Net"},
+        {"date": "2026-01-14", "status": "approved", "note": "Approved for 6 additional visits"}
+      ]
+    },
+    {
+      "id": "auth_009",
+      "patient": {
+        "id": "pt_1009",
+        "name": "Destiny Johnson",
+        "member_id": "MOL778451236"
+      },
+      "health_plan": "Molina Healthcare",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 5,
+      "visits_remaining": 4,
+      "submitted_date": null,
+      "days_pending": null,
+      "status": "draft",
+      "appeal_deadline": null,
+      "doula": "Sarah Johnson",
+      "submission_method": null,
+      "confirmation_number": null,
+      "clinical_justification": "Teen pregnancy (17 years old) with limited family support. First pregnancy with significant anxiety about labor and parenting.",
+      "timeline": [
+        {"date": "2026-01-14", "status": "draft", "note": "Auto-generated: patient approaching visit limit"}
+      ]
+    },
+    {
+      "id": "auth_010",
+      "patient": {
+        "id": "pt_1010",
+        "name": "Michelle Brown",
+        "member_id": "IEHP443287651"
+      },
+      "health_plan": "IEHP",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 8,
+      "visits_remaining": 1,
+      "submitted_date": "2026-01-07",
+      "days_pending": 8,
+      "status": "pending",
+      "appeal_deadline": null,
+      "doula": "Carmen Rodriguez",
+      "submission_method": "Fax",
+      "confirmation_number": "FX-20260107-0923",
+      "clinical_justification": "Gestational diabetes requiring intensive education. Patient has limited health literacy and benefits from weekly reinforcement of nutrition and glucose monitoring.",
+      "timeline": [
+        {"date": "2026-01-07", "status": "submitted", "note": "Faxed to IEHP"}
+      ]
+    },
+    {
+      "id": "auth_011",
+      "patient": {
+        "id": "pt_1011",
+        "name": "Jasmine Lee",
+        "member_id": "BSC449812376"
+      },
+      "health_plan": "Blue Shield of California",
+      "request_type": "Additional Postpartum",
+      "visits_requested": 9,
+      "visits_used": 7,
+      "visits_remaining": 2,
+      "submitted_date": "2026-01-02",
+      "days_pending": 0,
+      "status": "denied",
+      "denial_reason": "Request submitted prematurely. Member has not utilized standard postpartum benefit.",
+      "appeal_deadline": "2026-02-01",
+      "doula": "Lisa Chen",
+      "submission_method": "Fax",
+      "confirmation_number": "FX-20260102-1455",
+      "clinical_justification": "Anticipated extended postpartum support needs due to NICU admission of infant. Proactive request.",
+      "timeline": [
+        {"date": "2026-01-02", "status": "submitted", "note": "Faxed to Blue Shield"},
+        {"date": "2026-01-10", "status": "denied", "note": "Denied - premature request"}
+      ]
+    },
+    {
+      "id": "auth_012",
+      "patient": {
+        "id": "pt_1012",
+        "name": "Tanya Mitchell",
+        "member_id": "ANT884562190"
+      },
+      "health_plan": "Anthem Blue Cross",
+      "request_type": "Additional Prenatal",
+      "visits_requested": 6,
+      "visits_used": 9,
+      "visits_remaining": 0,
+      "submitted_date": "2026-01-11",
+      "days_pending": 4,
+      "status": "pending",
+      "appeal_deadline": null,
+      "doula": "Aisha Williams",
+      "submission_method": "Portal (Availity)",
+      "confirmation_number": "AVL-2026-80215",
+      "clinical_justification": "Previous stillbirth (32 weeks). Current pregnancy is high-risk with intensive monitoring. Patient experiencing significant pregnancy-related anxiety and grief.",
+      "timeline": [
+        {"date": "2026-01-11", "status": "submitted", "note": "Submitted via Availity"},
+        {"date": "2026-01-12", "status": "pending", "note": "Under review"}
+      ]
+    }
+  ],
+  "health_plans": [
+    "Anthem Blue Cross",
+    "Blue Shield of California",
+    "Health Net",
+    "Kaiser Permanente",
+    "LA Care",
+    "Molina Healthcare",
+    "IEHP",
+    "CalOptima",
+    "Partnership HealthPlan"
+  ]
+}

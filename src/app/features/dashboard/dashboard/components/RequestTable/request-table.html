@@ -1,0 +1,899 @@
+<div class="space-y-4 mt-6" role="region" aria-label="Authorization requests">
+  <app-request-filter-bar (filtersChanged)="onFiltersChanged($event)" />
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="space-y-3 mt-4" aria-label="Loading requests" role="status">
+      @for (i of [1, 2, 3, 4, 5]; track i) {
+        <div
+          class="animate-pulse rounded-2xl bg-white border border-gray-100 p-4 flex items-center gap-4"
+        >
+          <div class="w-10 h-10 rounded-full bg-gray-200"></div>
+          <div class="flex-1 space-y-2">
+            <div class="h-3 w-32 bg-gray-200 rounded"></div>
+            <div class="h-2 w-48 bg-gray-100 rounded"></div>
+          </div>
+          <div class="h-6 w-16 bg-gray-200 rounded-full"></div>
+          <div class="h-3 w-20 bg-gray-100 rounded"></div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading()) {
+    <div class="flex items-center justify-between px-1">
+      <div class="flex items-center gap-3">
+        <h2 class="font-heading text-lg text-primary">Authorization Requests</h2>
+        <span
+          class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold shadow-sm"
+          aria-label="Total filtered requests"
+        >
+          {{ filteredRequests().length }}
+        </span>
+      </div>
+      <button
+        mat-stroked-button
+        (click)="exportToCsv()"
+        class="text-primary! border-primary/30! text-xs! flex items-center gap-1"
+        aria-label="Export filtered requests to CSV"
+      >
+        <mat-icon style="font-size: 16px; width: 16px; height: 16px" aria-hidden="true"
+          >download</mat-icon
+        >
+        Export CSV
+      </button>
+    </div>
+
+    <!-- ─── Mobile card view─── -->
+    <div class="flex flex-col gap-3 md:hidden">
+      @for (req of filteredRequests(); track req.id) {
+        <div
+          class="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden"
+          [class.border-l-4]="(req.days_pending ?? 0) > 7"
+          [class.border-l-danger]="(req.days_pending ?? 0) > 7"
+        >
+          <!-- Card Header -->
+          <div class="flex items-center justify-between px-4 pt-4 pb-2">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-full bg-linear-to-br from-secondary to-primary flex items-center justify-center text-white text-sm font-bold shrink-0"
+              >
+                {{ req.patient.name.charAt(0) }}
+              </div>
+              <div>
+                <p class="font-semibold text-primary text-sm leading-tight">
+                  {{ req.patient.name }}
+                </p>
+                <p class="text-[11px] text-gray-400 font-mono">{{ req.patient.member_id }}</p>
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border"
+                [ngClass]="statusClass(req.status)"
+              >
+                {{ statusLabel(req.status) | titlecase }}
+              </span>
+
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="cardActionMenu"
+                (click)="$event.stopPropagation()"
+                class="text-gray-500! mb-2"
+                [attr.aria-label]="'Actions for ' + req.patient.name"
+              >
+                <mat-icon aria-hidden="true">more_vert</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <!-- Card Body -->
+          <div class="px-4 pb-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-gray-400 uppercase tracking-wide">Health Plan</span>
+              <span class="text-xs font-medium text-gray-700">{{ req.health_plan }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-gray-400 uppercase tracking-wide">Type</span>
+              <span
+                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-semibold bg-accent/20 text-primary border border-accent/40"
+              >
+                <span class="w-1.5 h-1.5 rounded-full bg-accent inline-block"></span>
+                {{ req.request_type }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-gray-400 uppercase tracking-wide">Submitted</span>
+              <span class="text-xs text-gray-600">
+                {{ req.submitted_date | date: 'MMM d, y' }}
+              </span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-gray-400 uppercase tracking-wide">Pending</span>
+              <div class="flex items-center gap-2">
+                <div class="w-14 h-1 rounded-full bg-gray-100 overflow-hidden">
+                  <div
+                    class="h-full rounded-full"
+                    [style.width.%]="Math.min(((req.days_pending ?? 0) / 14) * 100, 100)"
+                    [class.bg-secondary]="(req.days_pending ?? 0) <= 4"
+                    [class.bg-yellow-400]="
+                      (req.days_pending ?? 0) > 4 && (req.days_pending ?? 0) <= 7
+                    "
+                    [class.bg-danger]="(req.days_pending ?? 0) > 7"
+                  ></div>
+                </div>
+                <span
+                  class="text-xs font-bold"
+                  [class.text-danger]="(req.days_pending ?? 0) > 7"
+                  [class.text-yellow-500]="
+                    (req.days_pending ?? 0) > 4 && (req.days_pending ?? 0) <= 7
+                  "
+                  [class.text-secondary]="(req.days_pending ?? 0) <= 4"
+                >
+                  {{ req.days_pending ?? 0 }}d
+                </span>
+              </div>
+            </div>
+
+            <!-- Visits -->
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-gray-400 uppercase tracking-wide">Visits</span>
+              <div class="flex items-center gap-2">
+                <div class="w-14 h-1 rounded-full bg-gray-100 overflow-hidden">
+                  <div
+                    class="h-full bg-secondary rounded-full"
+                    [style.width.%]="(req.visits_used / req.visits_requested) * 100"
+                  ></div>
+                </div>
+                <span class="text-xs font-semibold text-primary">
+                  {{ req.visits_used }}/{{ req.visits_requested }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Appeal Deadline -->
+            @if (req.appeal_deadline) {
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] text-gray-400 uppercase tracking-wide">Appeal By</span>
+                <div
+                  class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-red-50 border border-red-100"
+                >
+                  <mat-icon
+                    style="font-size: 11px; width: 11px; height: 11px; line-height: 11px"
+                    class="text-danger"
+                    >schedule</mat-icon
+                  >
+                  <span class="text-xs font-semibold text-danger">
+                    {{ req.appeal_deadline | date: 'MMM d' }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Card Footer-->
+          <div class="border-t border-gray-50 px-4 py-2 flex items-center justify-between">
+            <button
+              mat-button
+              (click)="toggleRow(req.id)"
+              [attr.aria-expanded]="isExpanded(req.id)"
+              class="text-primary! text-xs! gap-1 flex items-center"
+            >
+              <mat-icon
+                style="font-size: 16px; width: 16px; height: 16px; line-height: 16px"
+                class="transition-transform duration-200"
+                [class.rotate-180]="isExpanded(req.id)"
+              >
+                expand_more
+              </mat-icon>
+              {{ isExpanded(req.id) ? 'Less' : 'More Details' }}
+            </button>
+            <mat-menu #cardActionMenu="matMenu">
+              @for (action of getActions(req.status); track action.label) {
+                <button mat-menu-item (click)="onAction(action.action, req)">
+                  <mat-icon aria-hidden="true">{{ action.icon }}</mat-icon>
+                  {{ action.label }}
+                </button>
+              }
+            </mat-menu>
+          </div>
+
+          <!-- Card Expanded Detail -->
+          <div
+            class="overflow-hidden transition-all duration-500 ease-in-out"
+            [class.max-h-0]="!isExpanded(req.id)"
+            [class.max-h-[2000px]]="isExpanded(req.id)"
+          >
+            <div
+              class="border-t border-primary/10 bg-linear-to-br from-slate-50 via-white to-accent/5 px-4 py-4 space-y-4"
+            >
+              <!-- Patient Info -->
+              <div class="rounded-xl border border-gray-100 bg-white shadow-sm p-4 space-y-2">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                  Patient Info
+                </span>
+                <mat-divider />
+                @for (
+                  item of [
+                    { label: 'Patient ID', value: req.patient.id, mono: true },
+                    { label: 'Member ID', value: req.patient.member_id, mono: true },
+                    { label: 'Doula', value: req.doula, mono: false },
+                  ];
+                  track item.label
+                ) {
+                  <div
+                    class="flex justify-between items-center py-1 border-b border-dashed border-gray-100 last:border-0"
+                  >
+                    <span class="text-[11px] text-gray-400 uppercase tracking-wide">
+                      {{ item.label }}
+                    </span>
+                    <span
+                      class="text-xs font-medium"
+                      [class.font-mono]="item.mono"
+                      [class.text-primary]="item.mono"
+                      [class.text-gray-700]="!item.mono"
+                    >
+                      {{ item.value }}
+                    </span>
+                  </div>
+                }
+              </div>
+
+              <!-- Visit Details -->
+              <div class="rounded-xl border border-gray-100 bg-white shadow-sm p-4 space-y-2">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                  Visit Details
+                </span>
+                <mat-divider />
+                @for (
+                  item of [
+                    { label: 'Remaining', value: req.visits_remaining + ' visits' },
+                    { label: 'Method', value: req.submission_method },
+                    { label: 'Confirmation', value: req.confirmation_number || '—' },
+                  ];
+                  track item.label
+                ) {
+                  <div
+                    class="flex justify-between items-center py-1 border-b border-dashed border-gray-100 last:border-0"
+                  >
+                    <span class="text-[11px] text-gray-400 uppercase tracking-wide">
+                      {{ item.label }}
+                    </span>
+                    <span class="text-xs font-medium font-mono text-primary">
+                      {{ item.value }}
+                    </span>
+                  </div>
+                }
+              </div>
+
+              <!-- Clinical Justification -->
+              <div class="rounded-xl border border-gray-100 bg-white shadow-sm p-4">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                  Clinical Justification
+                </span>
+                <mat-divider class="my-2" />
+                <p class="text-xs text-gray-600 leading-relaxed italic">
+                  {{ req.clinical_justification }}
+                </p>
+              </div>
+
+              <!-- Timeline -->
+              @if (req.timeline.length) {
+                <div class="rounded-xl border border-gray-100 bg-white shadow-sm p-4">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-primary/60">
+                    Timeline
+                  </span>
+                  <div class="mt-3 flex flex-col gap-0">
+                    @for (event of req.timeline; track event.date; let last = $last) {
+                      <div class="flex gap-3 relative" [class.pb-4]="!last">
+                        @if (!last) {
+                          <div
+                            class="absolute left-4.75 top-13 bottom-0 w-px bg-secondary/30"
+                          ></div>
+                        }
+                        <div class="shrink-0 relative flex items-center justify-center">
+                          @if (last) {
+                            <span class="absolute w-10 h-10 rounded-full bg-primary/20 opacity-50">
+                            </span>
+                          }
+                          <div
+                            class="w-10 h-10 rounded-full flex items-center justify-center shadow-sm border-2 border-white relative z-10"
+                            [ngClass]="last ? 'bg-primary' : 'bg-secondary/60'"
+                          >
+                            <mat-icon
+                              style="font-size: 15px; width: 15px; height: 15px; line-height: 15px"
+                              class="text-white!"
+                            >
+                              {{ timelineIcon(event.status) }}
+                            </mat-icon>
+                          </div>
+                        </div>
+                        <div class="flex-1 pt-1.5">
+                          <span
+                            class="text-sm font-semibold capitalize"
+                            [class.text-primary]="last"
+                            [class.text-gray-600]="!last"
+                          >
+                            {{ event.status }}
+                          </span>
+                          <div
+                            class="inline-flex items-center gap-1 text-[10px] text-gray-400 mt-0.5"
+                          >
+                            <mat-icon
+                              style="font-size: 10px; width: 10px; height: 10px; line-height: 10px"
+                            >
+                              schedule
+                            </mat-icon>
+                            {{ event.date | date: 'MMM d, y' }}
+                          </div>
+                          <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                            {{ event.note }}
+                          </p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (filteredRequests().length === 0) {
+        <div
+          class="flex flex-col items-center gap-4 py-20 bg-white rounded-2xl border border-gray-100"
+        >
+          <div class="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center">
+            <mat-icon class="text-4xl! w-10! h-10! text-primary/20">inbox</mat-icon>
+          </div>
+          <div class="text-center">
+            <p class="font-heading text-lg text-primary/50 mb-1">No requests found</p>
+            <p class="text-sm text-gray-400">Try adjusting your filters</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- ─── Desktop Table View ─── -->
+    <div
+      class="hidden md:block rounded-2xl overflow-hidden shadow-md border border-gray-100 bg-white"
+    >
+      <div class="overflow-x-auto">
+        <table
+          mat-table
+          [dataSource]="filteredRequests()"
+          class="w-full bg-transparent!"
+          multiTemplateDataRows
+        >
+          <ng-container matColumnDef="expand">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10! w-10! text-center!"
+            ></th>
+
+            <td mat-cell *matCellDef="let req" class="w-10! text-center!">
+              <button
+                mat-icon-button
+                (click)="toggleRow(req.id); $event.stopPropagation()"
+                [attr.aria-expanded]="isExpanded(req.id)"
+                [attr.aria-label]="'Expand details for ' + req.patient.name"
+                class="text-gray-400! transition-transform duration-200"
+                [class.rotate-180]="isExpanded(req.id)"
+              >
+                <mat-icon>keyboard_arrow_down</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="patient_name">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Patient
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3! pl-2!">
+              <div class="flex items-center gap-3">
+                <div class="flex flex-col">
+                  <span
+                    class="font-semibold text-primary text-sm leading-tight hover:underline cursor-pointer"
+                  >
+                    {{ req.patient.name }}
+                  </span>
+                  <span class="text-[11px] text-gray-400 font-mono">
+                    {{ req.patient.member_id }}
+                  </span>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="health_plan">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Health Plan
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3!">
+              <span class="text-sm text-gray-700">{{ req.health_plan }}</span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="request_type">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Type
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3!">
+              <span
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold"
+              >
+                {{ req.request_type }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="visits_requested">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10! text-center!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Visits
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3! text-center!">
+              <div class="inline-flex flex-col items-center">
+                <span class="text-base font-bold text-primary leading-none">
+                  {{ req.visits_requested }}
+                </span>
+                <span class="text-[10px] text-gray-400 mt-0.5">
+                  {{ req.visits_used }}/{{ req.visits_requested }} used
+                </span>
+                <div class="w-10 h-0.5 rounded-full bg-gray-100 mt-1 overflow-hidden">
+                  <div
+                    class="h-full bg-secondary rounded-full"
+                    [style.width.%]="(req.visits_used / req.visits_requested) * 100"
+                  ></div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Submitted Date -->
+          <ng-container matColumnDef="submitted_date">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Submitted
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3!">
+              <span class="text-sm text-gray-600">
+                {{ req.submitted_date | date: 'MMM d, y' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="days_pending">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Pending
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3!">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-1.5">
+                  <span
+                    class="text-sm font-bold"
+                    [class.text-danger]="(req.days_pending ?? 0) > 7"
+                    [class.text-yellow-500]="
+                      (req.days_pending ?? 0) > 4 && (req.days_pending ?? 0) <= 7
+                    "
+                    [class.text-secondary]="(req.days_pending ?? 0) <= 4"
+                  >
+                    {{ req.days_pending ?? 0 }}d
+                  </span>
+                  @if ((req.days_pending ?? 0) > 7) {
+                    <mat-icon class="text-danger! text-sm! w-4! h-4!" matTooltip="Overdue">
+                      error_outline
+                    </mat-icon>
+                  }
+                </div>
+                <div class="w-14 h-1 rounded-full bg-gray-100 overflow-hidden">
+                  <div
+                    class="h-full rounded-full"
+                    [style.width.%]="Math.min(((req.days_pending ?? 0) / 14) * 100, 100)"
+                    [class.bg-secondary]="(req.days_pending ?? 0) <= 4"
+                    [class.bg-yellow-400]="
+                      (req.days_pending ?? 0) > 4 && (req.days_pending ?? 0) <= 7
+                    "
+                    [class.bg-danger]="(req.days_pending ?? 0) > 7"
+                  ></div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="status">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Status
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3!">
+              <span
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border"
+                [ngClass]="statusClass(req.status)"
+              >
+                {{ statusLabel(req.status) | titlecase }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="appeal_deadline">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10! text-center!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Appeal By
+              </span>
+            </th>
+            <td mat-cell *matCellDef="let req" class="py-3! text-center!">
+              @if (req.appeal_deadline) {
+                <div class="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg">
+                  <span class="text-xs font-semibold">
+                    {{ req.appeal_deadline | date: 'MMM d' }}
+                  </span>
+                </div>
+              } @else {
+                <span class="text-lg font-light">—</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th
+              mat-header-cell
+              *matHeaderCellDef
+              class="bg-primary/5! border-b! border-primary/10! text-center!"
+            >
+              <span class="text-[11px] font-bold tracking-widest uppercase text-primary/60">
+                Actions
+              </span>
+            </th>
+
+            <td mat-cell *matCellDef="let req" class="py-3! text-center!">
+              <button
+                mat-icon-button
+                [matMenuTriggerFor]="actionMenu"
+                (click)="$event.stopPropagation()"
+                [attr.aria-label]="'Actions for ' + req.patient.name"
+                class="text-gray-500!"
+              >
+                <mat-icon>more_vert</mat-icon>
+              </button>
+
+              <mat-menu #actionMenu="matMenu">
+                @for (action of getActions(req.status); track action.label) {
+                  <button mat-menu-item (click)="onAction(action.action, req)">
+                    <mat-icon aria-hidden="true">{{ action.icon }}</mat-icon>
+                    {{ action.label }}
+                  </button>
+                }
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <!-- ─── Expanded Detail Row ─── -->
+          <ng-container matColumnDef="expandedDetail">
+            <td
+              mat-cell
+              *matCellDef="let req"
+              [attr.colspan]="displayedColumns.length"
+              class="p-0! border-0!"
+            >
+              <div
+                class="overflow-hidden transition-all duration-500 ease-in-out"
+                [class.max-h-0]="!isExpanded(req.id)"
+                [class.max-h-[2000px]]="isExpanded(req.id)"
+              >
+                <div>
+                  <div class="h-1 w-full"></div>
+
+                  <div class="px-8 py-6 space-y-4">
+                    <div class="flex items-center justify-end">
+                      <span
+                        class="px-3 py-1 rounded-full text-xs font-semibold border"
+                        [ngClass]="statusClass(req.status)"
+                      >
+                        {{ statusLabel(req.status) | titlecase }}
+                      </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div
+                        class="rounded-xl border border-gray-100 bg-white shadow-sm p-4 space-y-3"
+                      >
+                        <div class="flex items-center gap-2 mb-1">
+                          <div
+                            class="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center"
+                          >
+                            <mat-icon
+                              style="font-size: 14px; width: 14px; height: 14px; line-height: 14px"
+                              class="text-primary"
+                            >
+                              person
+                            </mat-icon>
+                          </div>
+                          <span class="text-xs font-bold uppercase tracking-widest text-primary/60">
+                            Patient Information
+                          </span>
+                        </div>
+                        <mat-divider />
+                        @for (
+                          item of [
+                            { label: 'Patient ID', value: req.patient.id, mono: true },
+                            { label: 'Member ID', value: req.patient.member_id, mono: true },
+                            { label: 'Doula', value: req.doula, mono: false },
+                          ];
+                          track item.label
+                        ) {
+                          <div
+                            class="flex justify-between items-center py-1 border-b border-dashed border-gray-100 last:border-0"
+                          >
+                            <span class="text-[11px] text-gray-400 uppercase tracking-wide">
+                              {{ item.label }}
+                            </span>
+                            <span
+                              class="text-xs font-medium"
+                              [class.font-mono]="item.mono"
+                              [class.text-primary]="item.mono"
+                              [class.text-gray-700]="!item.mono"
+                            >
+                              {{ item.value }}
+                            </span>
+                          </div>
+                        }
+                      </div>
+
+                      <div
+                        class="rounded-xl border border-gray-100 bg-white shadow-sm p-4 space-y-3"
+                      >
+                        <div class="flex items-center gap-2 mb-1">
+                          <div
+                            class="w-6 h-6 rounded-md bg-accent/20 flex items-center justify-center"
+                          >
+                            <mat-icon
+                              style="font-size: 14px; width: 14px; height: 14px; line-height: 14px"
+                              class="text-secondary"
+                            >
+                              event_available
+                            </mat-icon>
+                          </div>
+                          <span class="text-xs font-bold uppercase tracking-widest text-primary/60">
+                            Visit Details
+                          </span>
+                        </div>
+                        <mat-divider />
+
+                        <div class="flex items-center justify-between gap-3 py-1">
+                          <span class="text-[11px] text-gray-400 uppercase tracking-wide"
+                            >Usage</span
+                          >
+                          <div class="flex items-center gap-2 flex-1 justify-end">
+                            <div
+                              class="flex-1 max-w-20 h-1.5 rounded-full bg-gray-100 overflow-hidden"
+                            >
+                              <div
+                                class="h-full rounded-full bg-secondary transition-all"
+                                [style.width.%]="
+                                  Math.min((req.visits_used / req.visits_requested) * 100, 100)
+                                "
+                              ></div>
+                            </div>
+                            <span class="text-xs font-semibold text-primary">
+                              {{ req.visits_used }}/{{ req.visits_requested }}
+                            </span>
+                          </div>
+                        </div>
+
+                        @for (
+                          item of [
+                            { label: 'Remaining', value: req.visits_remaining + ' visits' },
+                            { label: 'Method', value: req.submission_method },
+                            { label: 'Confirmation', value: req.confirmation_number || '—' },
+                          ];
+                          track item.label
+                        ) {
+                          <div
+                            class="flex justify-between items-center py-1 border-b border-dashed border-gray-100 last:border-0"
+                          >
+                            <span class="text-[11px] text-gray-400 uppercase tracking-wide">
+                              {{ item.label }}
+                            </span>
+                            <span class="text-xs font-medium font-mono text-primary">
+                              {{ item.value }}
+                            </span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <div class="rounded-xl border border-gray-100 bg-white shadow-sm p-4">
+                      <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-widest text-primary/60">
+                          Clinical Justification
+                        </span>
+                      </div>
+                      <mat-divider />
+                      <div class="relative mt-3">
+                        <span
+                          class="absolute -top-2 -left-1 text-5xl text-primary/8 font-heading leading-none select-none"
+                        >
+                        </span>
+                        <p class="text-sm text-gray-600 leading-relaxed italic pl-4">
+                          {{ req.clinical_justification }}
+                        </p>
+                      </div>
+                    </div>
+
+                    @if (req.timeline?.length) {
+                      <div class="rounded-xl border border-gray-100 bg-white shadow-sm p-5">
+                        <div class="flex items-center gap-2 mb-4">
+                          <div
+                            class="w-6 h-6 rounded-md bg-primary/10 flex items-center justify-center"
+                          >
+                            <mat-icon
+                              style="font-size: 14px; width: 14px; height: 14px; line-height: 14px"
+                              class="text-primary"
+                            >
+                              timeline
+                            </mat-icon>
+                          </div>
+                          <span class="text-xs font-bold uppercase tracking-widest text-primary/60">
+                            Timeline
+                          </span>
+                        </div>
+
+                        <div class="relative flex flex-col gap-0">
+                          @for (event of req.timeline; track event.date; let last = $last) {
+                            <div class="flex gap-4 relative" [class.pb-5]="!last">
+                              @if (!last) {
+                                <div
+                                  class="absolute left-4.75 top-16 bottom-0 w-px bg-secondary/30"
+                                ></div>
+                              }
+
+                              <div class="shrink-0 relative flex items-center justify-center">
+                                @if (last) {
+                                  <span
+                                    class="absolute w-10 h-10 rounded-full bg-primary/20 opacity-50"
+                                  >
+                                  </span>
+                                }
+                                <div
+                                  class="w-10 h-10 rounded-full flex items-center justify-center shadow-sm border-2 border-white relative z-10"
+                                  [ngClass]="last ? 'bg-primary' : 'bg-secondary/60'"
+                                >
+                                  <mat-icon
+                                    style="
+                                      font-size: 15px;
+                                      width: 15px;
+                                      height: 15px;
+                                      line-height: 15px;
+                                    "
+                                    class="text-white!"
+                                  >
+                                    {{ timelineIcon(event.status) }}
+                                  </mat-icon>
+                                </div>
+                              </div>
+
+                              <!-- Content -->
+                              <div class="flex-1 pt-1.5">
+                                <div class="flex items-center flex-wrap gap-2">
+                                  <span
+                                    class="text-sm font-semibold capitalize"
+                                    [class.text-primary]="last"
+                                    [class.text-gray-600]="!last"
+                                  >
+                                    {{ event.status }}
+                                  </span>
+                                </div>
+                                <span
+                                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+                                >
+                                  <mat-icon
+                                    style="
+                                      font-size: 10px;
+                                      width: 10px;
+                                      height: 10px;
+                                      line-height: 10px;
+                                    "
+                                  >
+                                    schedule
+                                  </mat-icon>
+                                  {{ event.date | date: 'MMM d, y' }}
+                                </span>
+                                <p class="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                                  {{ event.note }}
+                                </p>
+                              </div>
+                            </div>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Row definitions -->
+          <tr mat-header-row *matHeaderRowDef="displayedColumns" class="h-15!"></tr>
+
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns"
+            class="transition-colors! duration-150! cursor-pointer"
+            [class.border-l-[3px]]="row.days_pending > 7"
+            [class.border-l-danger]="row.days_pending > 7"
+            (click)="toggleRow(row.id)"
+          ></tr>
+
+          <!-- Expanded detail row -->
+          <tr mat-row *matRowDef="let row; columns: ['expandedDetail']" class="h-0!"></tr>
+
+          <!-- Empty block -->
+          <tr class="mat-row" *matNoDataRow>
+            <td [attr.colspan]="displayedColumns.length">
+              <div class="flex flex-col items-center gap-4 py-20">
+                <div class="w-20 h-20 rounded-full bg-primary/5 flex items-center justify-center">
+                  <mat-icon class="text-4xl! w-10! h-10! text-primary/20">inbox</mat-icon>
+                </div>
+                <div class="text-center">
+                  <p class="font-heading text-lg text-primary/50 mb-1">No requests found</p>
+                  <p class="text-sm text-gray-400">Try adjusting your filters</p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  }
+</div>

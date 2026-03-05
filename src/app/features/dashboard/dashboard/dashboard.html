@@ -1,0 +1,52 @@
+<div class="min-h-screen bg-background">
+  <header class="bg-white shadow-sm sticky top-0 z-10" role="banner">
+    <div
+      class="max-w-8xl mx-auto px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+    >
+      <div class="text-2xl font-heading text-primary">Raya Health</div>
+    </div>
+  </header>
+  <main class="max-w-380 mx-auto px-4 py-6" role="main">
+    <h1 class="text-xl text-secondary font-semibold mb-6">Dashboard</h1>
+
+    <!-- Error State -->
+    @if (error()) {
+      <div class="rounded-2xl bg-red-50 border border-red-200 p-8 text-center mb-6" role="alert">
+        <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+          <mat-icon class="text-danger text-3xl!" aria-hidden="true">error_outline</mat-icon>
+        </div>
+        <h2 class="text-lg font-heading text-primary mb-2">Something went wrong</h2>
+        <p class="text-sm text-gray-600 mb-4">{{ error() }}</p>
+        <button mat-flat-button (click)="onRetry()" class="bg-primary! text-white!">
+          <mat-icon class="mr-1" aria-hidden="true">refresh</mat-icon>
+          Try Again
+        </button>
+      </div>
+    }
+
+    <!-- Summary Cards -->
+    @if (!error()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4" role="region" aria-label="Summary metrics">
+        @if (loading() && cards().length === 0) {
+          @for (i of [1,2,3,4,5]; track i) {
+            <app-summary-card [loading]="true" />
+          }
+        } @else {
+          @for (card of cards(); track card.id) {
+            <app-summary-card
+              [title]="card.title"
+              [value]="card.value"
+              [colorClass]="card.colorClass"
+              [isUrgent]="card.isUrgent"
+              [icon]="card.icon"
+            />
+          }
+        }
+      </div>
+
+      <div>
+        <app-request-table />
+      </div>
+    }
+  </main>
+</div>

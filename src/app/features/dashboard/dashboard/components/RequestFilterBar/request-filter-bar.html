@@ -1,0 +1,281 @@
+<mat-card class="filter-card bg-white mb-5">
+  <mat-card-content>
+    <!-- Header row -->
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2">
+        <mat-icon class="text-secondary" style="font-size: 18px; width: 18px; height: 18px">
+          tune
+        </mat-icon>
+        <span class="text-sm font-semibold tracking-wide uppercase text-secondary">
+          Filters & Sorting
+        </span>
+        @if (activeFilterCount() > 0) {
+          <span
+            class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-xs font-bold"
+          >
+            {{ activeFilterCount() }}
+          </span>
+        }
+      </div>
+
+      @if (activeFilterCount() > 0) {
+        <button
+          mat-button
+          (click)="clearAll()"
+          class="text-xs! text-danger! flex items-center gap-1 hover:bg-red-50!"
+        >
+          <mat-icon style="font-size: 16px; width: 16px; height: 16px">close</mat-icon>
+          Clear all
+        </button>
+      }
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px bg-linear-to-r from-surface/40 via-surface to-surface/40 mb-4"></div>
+
+    <!-- Filter fields -->
+    <div class="flex flex-wrap gap-3 items-end">
+      <!-- Status -->
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70 px-1">
+          Status
+        </span>
+        <mat-form-field appearance="outline" class="w-44 filter-field">
+          <mat-select
+            multiple
+            [ngModel]="selectedStatuses()"
+            (ngModelChange)="selectedStatuses.set($event); emit()"
+            placeholder="All statuses"
+          >
+            @for (s of allStatuses(); track s) {
+              <mat-option [value]="s">{{ s | titlecase }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Health Plan -->
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70 px-1">
+          Health Plan
+        </span>
+        <mat-form-field appearance="outline" class="w-48 filter-field">
+          <mat-select
+            multiple
+            [ngModel]="selectedHealthPlans()"
+            (ngModelChange)="selectedHealthPlans.set($event); emit()"
+            placeholder="All plans"
+          >
+            @for (p of allHealthPlans(); track p) {
+              <mat-option [value]="p">{{ p }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Request Type -->
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70 px-1">
+          Request Type
+        </span>
+        <mat-form-field appearance="outline" class="w-48 filter-field">
+          <mat-select
+            multiple
+            [ngModel]="selectedRequestTypes()"
+            (ngModelChange)="selectedRequestTypes.set($event); emit()"
+            placeholder="All types"
+          >
+            @for (t of allRequestTypes(); track t) {
+              <mat-option [value]="t">{{ t }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Vertical divider -->
+      <div class="self-center h-10 w-px bg-surface/60 mx-1 hidden md:block"></div>
+
+      <!-- Date From -->
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70 px-1">
+          From
+        </span>
+        <mat-form-field appearance="outline" class="w-40 filter-field">
+          <input
+            matInput
+            [matDatepicker]="fromPicker"
+            [ngModel]="dateFrom()"
+            (ngModelChange)="dateFrom.set($event); emit()"
+            placeholder="Start date"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="fromPicker" />
+          <mat-datepicker #fromPicker />
+        </mat-form-field>
+      </div>
+
+      <!-- Date To -->
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70 px-1">
+          To
+        </span>
+        <mat-form-field appearance="outline" class="w-40 filter-field">
+          <input
+            matInput
+            [matDatepicker]="toPicker"
+            [ngModel]="dateTo()"
+            (ngModelChange)="dateTo.set($event); emit()"
+            placeholder="End date"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="toPicker" />
+          <mat-datepicker #toPicker />
+        </mat-form-field>
+      </div>
+
+      <!-- Vertical divider -->
+      <div class="self-center h-10 w-px bg-surface/60 mx-1 hidden md:block"></div>
+
+      <!-- Sort -->
+      <div class="flex flex-col gap-1">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70 px-1">
+          Sort By
+        </span>
+        <mat-form-field appearance="outline" class="w-56 filter-field">
+          <mat-icon
+            matPrefix
+            class="text-secondary/60 mr-1"
+            style="font-size: 16px; width: 16px; height: 16px"
+          >
+            swap_vert
+          </mat-icon>
+          <mat-select [ngModel]="sortValue()" (ngModelChange)="onSortChange($event)">
+            @for (opt of sortOptions; track opt.value) {
+              <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- Vertical divider -->
+      <div class="self-center h-10 w-px bg-surface/60 mx-1 hidden md:block"></div>
+
+      <!-- Urgent Toggle -->
+      <div class="flex flex-col gap-1 pb-6 px-2">
+        <span class="text-[10px] font-semibold tracking-widest uppercase text-secondary/70">
+          Urgency
+        </span>
+        <div
+          class="flex items-center gap-2 border rounded-lg px-3 py-2 transition-all"
+          [class.bg-red-100]="urgentOnly()"
+          [class.border-red-300]="urgentOnly()"
+        >
+          <mat-slide-toggle
+            color="warn"
+            [ngModel]="urgentOnly()"
+            (ngModelChange)="urgentOnly.set($event); emit()"
+          >
+          </mat-slide-toggle>
+          <span
+            class="text-sm font-medium"
+            [class.text-danger]="urgentOnly()"
+            [class.text-gray-500]="!urgentOnly()"
+          >
+            Urgent Only
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active filter block -->
+    @if (activeFilterCount() > 0 || sortValue() !== 'submitted_date|desc') {
+      <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-surface/30">
+        @for (s of selectedStatuses(); track s) {
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+          >
+            {{ s | titlecase }}
+            <mat-icon
+              class="cursor-pointer hover:text-danger"
+              style="font-size: 12px; width: 12px; height: 12px"
+              (click)="selectedStatuses.update(v => v.filter(x => x !== s)); emit()"
+            >
+              close
+            </mat-icon>
+          </span>
+        }
+        @for (p of selectedHealthPlans(); track p) {
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-medium"
+          >
+            {{ p }}
+            <mat-icon
+              class="cursor-pointer hover:text-danger"
+              style="font-size: 12px; width: 12px; height: 12px"
+              (click)="selectedHealthPlans.update(v => v.filter(x => x !== p)); emit()"
+            >
+              close
+            </mat-icon>
+          </span>
+        }
+        @for (t of selectedRequestTypes(); track t) {
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-accent/20 text-primary text-xs font-medium"
+          >
+            {{ t }}
+            <mat-icon
+              class="cursor-pointer hover:text-danger"
+              style="font-size: 12px; width: 12px; height: 12px"
+              (click)="selectedRequestTypes.update(v => v.filter(x => x !== t)); emit()"
+            >
+              close
+            </mat-icon>
+          </span>
+        }
+        @if (dateFrom() || dateTo()) {
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface/40 text-primary text-xs font-medium"
+          >
+            <mat-icon style="font-size: 12px; width: 12px; height: 12px">date_range</mat-icon>
+            Date range active
+            <mat-icon
+              class="cursor-pointer hover:text-danger"
+              style="font-size: 12px; width: 12px; height: 12px"
+              (click)="dateFrom.set(null); dateTo.set(null); emit()"
+            >
+              close
+            </mat-icon>
+          </span>
+        }
+        @if (urgentOnly()) {
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-danger text-xs font-medium"
+          >
+            <mat-icon style="font-size: 12px; width: 12px; height: 12px">warning</mat-icon>
+            Urgent only
+            <mat-icon
+              class="cursor-pointer hover:text-danger"
+              style="font-size: 12px; width: 12px; height: 12px"
+              (click)="urgentOnly.set(false); emit()"
+            >
+              close
+            </mat-icon>
+          </span>
+        }
+        @if (sortValue() !== 'submitted_date|desc') {
+          <span
+            class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+          >
+            Clear Sort
+            {{ activeSortLabel() }}
+            <mat-icon
+              class="cursor-pointer hover:text-danger"
+              style="font-size: 12px; width: 12px; height: 12px"
+              (click)="onSortChange('submitted_date|desc')"
+            >
+              close
+            </mat-icon>
+          </span>
+        }
+      </div>
+    }
+  </mat-card-content>
+</mat-card>
